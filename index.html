@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html ng-app="imageBrowserApp">
+<head>
+    <title>Image Browser</title>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+    <style>
+      .image-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+          gap: 10px;
+      }
+      .image {
+          display: block;
+          width: 100%;
+          height: auto;
+          cursor: pointer;
+      }
+      .selected-image-container {
+          display: flex;
+          justify-content: center; /* Center horizontally */
+          align-items: center; /* Center vertically */
+          margin-top: 20px; /* Adjust margin as needed */
+      }
+      .selected-image {
+          border: 2px solid rgb(255, 0, 0);
+          max-width: 600px; /* Set maximum width for the selected image */
+      }
+      .selected-image img {
+          width: 100%;
+          height: auto;
+      }
+
+  </style>
+  
+</head>
+<body ng-controller="ImageController">
+    
+    <div class="image-grid">
+        <div ng-repeat="image in images" class="image" ng-click="selectImage(image)" ng-class="{ 'selected-image': image === selectedImage }">
+            <img ng-src="{{image.url}}" alt="Image {{$index}}" class="image">
+        </div>
+    </div>
+    <div ng-show="selectedImage">
+
+        <div class="selected-image-container">
+            <div class="selected-image">
+                <img ng-src="{{selectedImage.url}}" alt="Selected Image">
+            </div>
+        </div>
+        
+    </div>
+
+    <script>
+        angular.module('imageBrowserApp', [])
+            .controller('ImageController', function($scope, $http) {
+                $scope.images = [];
+                $scope.selectedImage = null;
+
+                // Fetching images from picsum.photos
+                $http.get('https://picsum.photos/list')
+                    .then(function(response) {
+                        $scope.images = response.data.slice(0, 30).map(function(imageData) {
+                            return {
+                                id: imageData.id,
+                                url: 'https://picsum.photos/id/' + imageData.id + '/200/200'
+                            };
+                        });
+                    });
+
+                $scope.selectImage = function(image) {
+                    $scope.selectedImage = image;
+                };
+
+                $scope.clearSelectedImage = function() {
+                    $scope.selectedImage = null;
+                };
+            });
+    </script>
+</body>
+</html>
